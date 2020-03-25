@@ -1,5 +1,12 @@
-# origin source: http://www.programmersought.com/article/5089108308/
-
+# ---------------------------------------------------------------------
+# ---------------------------------------
+# 
+# python: 3.7
+# tensorflow: 2.1.0
+# date: 25/03/2020
+# 
+# ---------------------------------------
+# ----------------------------------------------------------------------
 import tensorflow as tf
 import numpy as np
 import matplotlib.pylab as plt
@@ -51,13 +58,11 @@ from sklearn.metrics import r2_score
 print(f"r2_score:{r2_score(y_test, y_pred)}")
 
 l_0 = tf.keras.layers.Dense(units=4, input_shape=[1], activation='tanh')
-# l_1 = tf.keras.layers.Dense(units=10, activation='tanh')
+l_1 = tf.keras.layers.Dense(units=10, activation='tanh')
 l_2 = tf.keras.layers.Dense(units=1, activation='linear')
 
-# model = tf.keras.Sequential([l_0, l_1, l_2])
-model = tf.keras.Sequential([l_0, l_2])
+model = tf.keras.Sequential([l_0, l_1, l_2])
 model.compile(loss='mean_squared_error', optimizer= tf.keras.optimizers.Adam(0.001))
-# model.compile(loss='mse', optimizer= tf.keras.optimizers.SGD(0.001))
 trained_model = model.fit(x_train, y_train, epochs=2000, verbose=False)
 
 plt.xlabel('Epoch Number')
