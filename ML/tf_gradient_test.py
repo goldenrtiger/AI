@@ -16,7 +16,6 @@ var2 = tf.Variable([2.0], name='var2',trainable=True, dtype=tf.float32)
 opt = tf.keras.optimizers.SGD(learning_rate=0.1)
 
 print(">>>>>>>>>>>> start!! gradient->apply_gradients----------------------")
-
 with tf.GradientTape(watch_accessed_variables=True) as g:   
     y = 3 * var1 * var1 + 2 * var2 * var2
 
