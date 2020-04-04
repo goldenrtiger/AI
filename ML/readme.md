@@ -9,3 +9,5 @@
 * LinearRegression_simple.py
 * NonlinearRegression_simple.py
 * tf_gradient_test.py
+* pyro.learning_test.py
+* tensorflow_basic_op.py
