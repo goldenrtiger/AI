@@ -10,10 +10,27 @@
 # ---------------------------------------
 # ----------------------------------------------------------------------
 
+# ---------------------------------------------------------------------
+# a = pyro.distributions.Normal(0.0, 1.) # create an object
+# a.rsample()    #execute sample
+# equivalent to the following code
+# pyro.sample('test', a) 
+# pyro.sample('test', a, obs=torch.tensor(1.))
+# >>> out:
+#   tensor(1.) # always
+# ---------------------------------------------------------------------
+
+
 import torch 
 import pyro
 
-# torch
+# torch >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -------- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# ---------------------------------------------------------------------
+# tensor
+# rsample, sample, rand
+# 
+# ---------------------------------------------------------------------
+
 
 ### --------------------------------------------------------------------------------------------------------------
 # x = torch.tensor([[1]])
@@ -38,8 +55,35 @@ import pyro
 # #         [ 2.,  2.]])
 # '''
 
+### ---------------------------------------------------------------------------------------
+# normal = torch.distributions.Normal(0., 1.)
+# x = normal.rsample(torch.tensor([3,4]))
+# print(f"x:{x}")
+# # >>>out:
+# # x:tensor([[-1.1206, -0.8669, -0.4834,  0.5253],
+# #         [-0.2134,  0.1806, -0.4429, -0.8174],
+# #         [-0.3579,  1.4537, -3.0391, -1.0096]])
+# y = normal.sample(torch.tensor([3,4]))
+# print(f"y:{y}")
+# # >>>out:
+# # y:tensor([[ 0.5678,  1.1513, -0.8438, -0.4082],
+# #         [ 0.0012, -0.1341, -0.6118, -1.0525],
+# #         [-0.3909, -0.0978,  0.3985, -1.2088]])
+# z = torch.rand(3,4)
+# print(f"z:{z}")
+# # >>>out:
+# # z:tensor([[0.8446, 0.3177, 0.8650, 0.0365],
+# #         [0.9405, 0.0388, 0.1358, 0.8171],
+# #         [0.2011, 0.4106, 0.4717, 0.0533]])
 
-# pyro 1.3.0 -------------------------------------------------------------------------
+
+
+# pyro 1.3.0 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -------- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# ---------------------------------------------------------------------
+# pyro.sample('cloudy', pyro.distributions.Bernoulli(0.3), torch.tensor([3,4]))
+# 
+# ---------------------------------------------------------------------
+
 ### --------------------------------------------------------------------------------------------------------------
 # pyro.set_rng_seed(101)
 # loc = 0.    # mean
@@ -201,88 +245,146 @@ import pyro
 # plt.show()
 
 ### --------------------------------------------------------------------------------------------------------------
-import math
-import os
-import torch
-import torch.distributions.constraints as constraints
-import pyro
-from pyro.optim import Adam
-from pyro.infer import SVI, Trace_ELBO
-import pyro.distributions as dist
+# import math
+# import os
+# import torch
+# import torch.distributions.constraints as constraints
+# import pyro
+# from pyro.optim import Adam
+# from pyro.infer import SVI, Trace_ELBO
+# import pyro.distributions as dist
 
-# this is for running the notebook in our testing framework
-smoke_test = ('CI' in os.environ)
-n_steps = 2 if smoke_test else 2000
+# # this is for running the notebook in our testing framework
+# smoke_test = ('CI' in os.environ)
+# n_steps = 2 if smoke_test else 2000
 
-# enable validation (e.g. validate parameters of distributions)
-assert pyro.__version__.startswith('1.3.0')
-pyro.enable_validation(True)
+# # enable validation (e.g. validate parameters of distributions)
+# assert pyro.__version__.startswith('1.3.0')
+# pyro.enable_validation(True)
 
-# clear the param store in case we're in a REPL
-pyro.clear_param_store()
+# # clear the param store in case we're in a REPL
+# pyro.clear_param_store()
 
-# create some data with 6 observed heads and 4 observed tails
-data = []
-for _ in range(6):
-    data.append(torch.tensor(1.0))
-for _ in range(4):
-    data.append(torch.tensor(0.0))
+# # create some data with 6 observed heads and 4 observed tails
+# data = []
+# for _ in range(6):
+#     data.append(torch.tensor(1.0))
+# for _ in range(4):
+#     data.append(torch.tensor(0.0))
 
-def model(data):
-    # define the hyperparameters that control the beta prior
-    alpha0 = torch.tensor(10.0)
-    beta0 = torch.tensor(10.0)
-    # sample f from the beta prior
-    f = pyro.sample("latent_fairness", dist.Beta(alpha0, beta0))
-    # loop over the observed data
-    for i in range(len(data)):
-        # observe datapoint i using the bernoulli likelihood
-        pyro.sample("obs_{}".format(i), dist.Bernoulli(f), obs=data[i])
+# def model(data):
+#     # define the hyperparameters that control the beta prior
+#     alpha0 = torch.tensor(10.0)
+#     beta0 = torch.tensor(10.0)
+#     # sample f from the beta prior
+#     f = pyro.sample("latent_fairness", dist.Beta(alpha0, beta0))
+#     # loop over the observed data
+#     for i in range(len(data)):
+#         # observe datapoint i using the bernoulli likelihood
+#         pyro.sample("obs_{}".format(i), dist.Bernoulli(f), obs=data[i])
 
-def guide(data):
-    # register the two variational parameters with Pyro
-    # - both parameters will have initial value 15.0.
-    # - because we invoke constraints.positive, the optimizer
-    # will take gradients on the unconstrained parameters
-    # (which are related to the constrained parameters by a log)
-    alpha_q = pyro.param("alpha_q", torch.tensor(15.0),
-                         constraint=constraints.positive)
-    beta_q = pyro.param("beta_q", torch.tensor(15.0),
-                        constraint=constraints.positive)
-    # sample latent_fairness from the distribution Beta(alpha_q, beta_q)
-    pyro.sample("latent_fairness", dist.Beta(alpha_q, beta_q))
+# def guide(data):
+#     # register the two variational parameters with Pyro
+#     # - both parameters will have initial value 15.0.
+#     # - because we invoke constraints.positive, the optimizer
+#     # will take gradients on the unconstrained parameters
+#     # (which are related to the constrained parameters by a log)
+#     alpha_q = pyro.param("alpha_q", torch.tensor(15.0),
+#                          constraint=constraints.positive)
+#     beta_q = pyro.param("beta_q", torch.tensor(15.0),
+#                         constraint=constraints.positive)
+#     # sample latent_fairness from the distribution Beta(alpha_q, beta_q)
+#     pyro.sample("latent_fairness", dist.Beta(alpha_q, beta_q))
 
-# setup the optimizer
-adam_params = {"lr": 0.0005, "betas": (0.90, 0.999)}
-optimizer = Adam(adam_params)
+# # setup the optimizer
+# adam_params = {"lr": 0.0005, "betas": (0.90, 0.999)}
+# optimizer = Adam(adam_params)
 
-# setup the inference algorithm
-svi = SVI(model, guide, optimizer, loss=Trace_ELBO())
+# # setup the inference algorithm
+# svi = SVI(model, guide, optimizer, loss=Trace_ELBO())
 
-# do gradient steps
-for step in range(n_steps):
-    svi.step(data)
-    if step % 100 == 0:
-        print('.', end='')
+# # do gradient steps
+# for step in range(n_steps):
+#     svi.step(data)
+#     if step % 100 == 0:
+#         print('.', end='')
 
-# grab the learned variational parameters
-alpha_q = pyro.param("alpha_q").item()
-beta_q = pyro.param("beta_q").item()
+# # grab the learned variational parameters
+# alpha_q = pyro.param("alpha_q").item()
+# beta_q = pyro.param("beta_q").item()
 
-# here we use some facts about the beta distribution
-# compute the inferred mean of the coin's fairness
-inferred_mean = alpha_q / (alpha_q + beta_q)
-# compute inferred standard deviation
-factor = beta_q / (alpha_q * (1.0 + alpha_q + beta_q))
-inferred_std = inferred_mean * math.sqrt(factor)
+# # here we use some facts about the beta distribution
+# # compute the inferred mean of the coin's fairness
+# inferred_mean = alpha_q / (alpha_q + beta_q)
+# # compute inferred standard deviation
+# factor = beta_q / (alpha_q * (1.0 + alpha_q + beta_q))
+# inferred_std = inferred_mean * math.sqrt(factor)
 
-print("\nbased on the data and our prior belief, the fairness " +
-      "of the coin is %.3f +- %.3f" % (inferred_mean, inferred_std))
+# print("\nbased on the data and our prior belief, the fairness " +
+#       "of the coin is %.3f +- %.3f" % (inferred_mean, inferred_std))
+
+### MCMC ----------------------------------------------
+# Copyright (c) 2017-2019 Uber Technologies, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# import argparse
+# import logging
+
+# import torch
+
+# import data
+# import pyro
+# import pyro.distributions as dist
+# import pyro.poutine as poutine
+# from pyro.infer import MCMC, NUTS
+
+# logging.basicConfig(format='%(message)s', level=logging.INFO)
+# pyro.enable_validation(__debug__)
+# pyro.set_rng_seed(0)
+
+# def model(sigma):
+#     eta = pyro.sample('eta', dist.Normal(torch.zeros(data.J), torch.ones(data.J)))
+#     mu = pyro.sample('mu', dist.Normal(torch.zeros(1), 10 * torch.ones(1)))
+#     tau = pyro.sample('tau', dist.HalfCauchy(scale=25 * torch.ones(1)))
+
+#     theta = mu + tau * eta
+
+#     return pyro.sample("obs", dist.Normal(theta, sigma))
+
+
+# def conditioned_model(model, sigma, y):
+#     return poutine.condition(model, data={"obs": y})(sigma)
+
+
+# def main(args):
+#     nuts_kernel = NUTS(conditioned_model, jit_compile=args.jit)
+#     mcmc = MCMC(nuts_kernel,
+#                 num_samples=args.num_samples,
+#                 warmup_steps=args.warmup_steps,
+#                 num_chains=args.num_chains)
+#     mcmc.run(model, data.sigma, data.y)
+#     mcmc.summary(prob=0.5)
+
+
+# if __name__ == '__main__':
+#     assert pyro.__version__.startswith('1.3.0')
+#     parser = argparse.ArgumentParser(description='Eight Schools MCMC')
+#     parser.add_argument('--num-samples', type=int, default=1000,
+#                         help='number of MCMC samples (default: 1000)')
+#     parser.add_argument('--num-chains', type=int, default=1,
+#                         help='number of parallel MCMC chains (default: 1)')
+#     parser.add_argument('--warmup-steps', type=int, default=1000,
+#                         help='number of MCMC samples for warmup (default: 1000)')
+#     parser.add_argument('--jit', action='store_true', default=False)
+#     args = parser.parse_args()
+
+#     main(args)
 ### ----------------------------------------------
 
 ### ----------------------------------------------
+
 ### ----------------------------------------------
-### ----------------------------------------------
+
 ### ----------------------------------------------
 ### ----------------------------------------------
 ### ----------------------------------------------
