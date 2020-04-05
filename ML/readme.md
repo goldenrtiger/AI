@@ -7,9 +7,10 @@
 * pyro: 1.3.0
 
 # ML
-* tensorflow_basic_op.py
-* LinearRegression_simple.py
-* NonlinearRegression_simple.py
-* tf_gradient_test.py
+* tensorflow.tensorflow_basic_op.py
+* tensorflow.LinearRegression_simple.py
+* tensorflow.NonlinearRegression_simple.py
+* tensorflow.tf_gradient_test.py
+
 * pyro.learning_test.py
 * pyro.hmc_simple_test.py
