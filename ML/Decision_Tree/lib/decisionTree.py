@@ -1,49 +1,6 @@
-#   
-#   example_classification:
-#   Outlook         Temp.           Humidity        Wind        Target
-#    Sunny          Hot             High            Weak        No            
-#    Sunny          Hot             High            Strong      No
-#    Overcast       Hot             High            Weak        Yes
-#    Rain           Mild            High            Weak        Yes
-#    Rain           Cool            Normal          Weak        Yes
-#    Rain           Cool            Normal          Strong      No
-#    Overcast       Cool            Normal          Strong      Yes
-#    Sunny          Mild            High            Weak        No
-#    Sunny          Cool            Normal          Weak        Yes
-#    Rain           Mild            Normal          Weak        Yes
-#    Sunny          Mild            Normal          Strong      Yes
-#    Overcast       Mild            High            Strong      Yes
-#    Overcast       Hot             Normal          Weak        Yes
-#    Rain           Mild            High            Strong      No
-
-
-#   Outlook         Temp.           Humidity        Wind        Target
-#    Rain            Hot              High          False       25                       
-#    Rain            Hot              High          True        30                  
-#    Overcast        Hot              High          False       46                           
-#    Sunny           Mild             High          False       45                          
-#    Sunny           Cool             Normal        False       52                      
-#    Sunny           Cool             Normal        True        23                           
-#    Overcast        Cool             Normal        True        43                              
-#    Rain            Mild             High          False       35                         
-#    Rain            Cool             Normal        False       38                           
-#    Sunny           Mild             Normal        False       46                            
-#    Rain            Mild             Normal        True        48                          
-#    Overcast        Mild             High          True        52                            
-#    Overcast        Hot              Normal        False       44                          
-#    Sunny           Mild             High          True        30    
-
-
-import pandas as pd
+import lib.treeLevel as TL
 import numpy as np
-
-class treeLevel:
-    level = None
-    isDone = None
-    doneValue = None                # for regression value
-    feature_name = None             # ["Outlook"] or ["Humidity"]
-    feature_condition = dict()      # {"Sunny": "Humidity", "Overcast":"Yes", "Rain":"Rain"}
-    feature_samples = dict()        # {"Sunny": xxx, "Overcast": xxx, "Rain": xxx}
+import pandas as pd
 
 class DecisionTree:
     '''
@@ -82,13 +39,13 @@ class DecisionTree:
     def summary(self):
         for l in self.trees:
             for tree in l:
-                print(f"isDone: {tree.isDone} \n root_node_name: {tree.feature_name} \n nodes_detail:{tree.feature_condition} \n")
+                print(f" root_node_name: {tree.feature_name} \n nodes_detail: {tree.branches} \n")
 
     def createTreeLevelBinary(self, df):
         rows, cols = df.shape[0], df.shape[1]
         features = df.columns
         gains = []
-        tree = treeLevel()
+        tree = TL.treeLevel()
 
         if (df['Target'] == 'Yes').all() or (df['Target'] == 'No').all():
             tree.isDone = True
@@ -157,8 +114,9 @@ class DecisionTree:
 
         for item in df[tree.feature_name]:
             if item not in item_dict.keys():
-                item_dict[item] = None
-        tree.feature_condition = item_dict
+                item_dict[item] = TL.treeLevel.initBranchValue()
+
+        tree.branches = item_dict
 
         return tree
         
@@ -166,7 +124,7 @@ class DecisionTree:
         rows, cols = df.shape[0], df.shape[1]
         features = df.columns
         sdrs = []
-        tree = treeLevel()
+        tree = TL.treeLevel()
 
         target = df['Target'].tolist()
         sd = np.std(np.array(target))
@@ -204,15 +162,15 @@ class DecisionTree:
         item_dict = dict()
         for item in df[tree.feature_name]:
             if item not in item_dict.keys():
-                item_dict[item] = None
-        tree.feature_condition = item_dict
+                item_dict[item] = TL.treeLevel.initBranchValue()
+        tree.branches = item_dict
 
         return tree
 
     def constructDecisionTree(self, df):
         raw_df = df.copy()
         rows, cols = raw_df.shape[0], raw_df.shape[1]
-        tree = treeLevel()
+        tree = TL.treeLevel()
         trees_rets = []
 
         if self.configure['algorithm'] == 'ID3_binary' or self.configure['algorithm'] == 'Gini_binary':
@@ -236,31 +194,33 @@ class DecisionTree:
                     if pre_tree.isDone:
                         continue
 
-                    # for cond_dict in pre_tree.feature_condition:
-                    cond_dict = pre_tree.feature_condition
-                    for cond in cond_dict.keys():                    
+                    # for branches in pre_tree.feature_condition:
+                    branches = pre_tree.branches
+                    for branch_name in branches.keys():                    
                         feature_samples = pre_tree.feature_samples[pre_tree.feature_name]
-                        samples = feature_samples.values[feature_samples[pre_tree.feature_name] == cond]
-                        samples = samples[np.where(samples != cond)].reshape(samples.shape[0], -1)                    
+                        samples = feature_samples.values[feature_samples[pre_tree.feature_name] == branch_name]
+                        samples = samples[np.where(samples != branch_name)].reshape(samples.shape[0], -1)                    
                         columns = feature_samples.columns.drop(pre_tree.feature_name)                        
                         samples = pd.DataFrame(samples, columns=columns)
                         tree = createTreeLevel(samples)
 
                         if tree.isDone:
                             if self.configure['algorithm'] == 'ID3_binary' or self.configure['algorithm'] == 'Gini_binary':
-                                cond_dict[cond] = samples['Target'][0]            # update pre_tree feature_condition value
+                                TL.treeLevel.setBranchDone(branches[branch_name])                                           # update pre_tree feature_condition value
+                                TL.treeLevel.setBranchValue(branches[branch_name], samples['Target'][0])   
                             elif self.configure['algorithm'] == 'regression':
-                                cond_dict[cond] = tree.doneValue
+                                TL.treeLevel.setBranchDone(branches[branch_name])                                           # update pre_tree feature_condition value
+                                TL.treeLevel.setBranchValue(branches[branch_name], tree.doneValue)  
+                                
                         else:
-                            cond_dict[cond] = tree.feature_name
+                            TL.treeLevel.setBranchValue(branches[branch_name], tree.feature_name)
                             tree.feature_samples[tree.feature_name] = samples   # store samples
                             tree.level = idx
-                        trees.append(tree)
+                            trees.append(tree)
 
                 trees_rets.append(trees)
      
         return trees_rets 
-
 
     def handleDecisionTree(self, df):
         trees = []
@@ -278,7 +238,7 @@ class DecisionTree:
         if self.configure['summary']:  
             self.summary()      
 
-    def findDecisions(self, records, decisions=['Yes', 'No']):
+    def findDecisions(self, records):
         decisions_rets = []
         value = None
         for record_offset in range(len(records.values)):
@@ -289,58 +249,26 @@ class DecisionTree:
                         if not tree.feature_name in records.columns:
                             raise ValueError(f"{tree.feature_name} is not in record.columns {record.columns}")
                         feature = records[tree.feature_name][record_offset]
-                        if not feature in tree.feature_condition.keys():
-                            raise ValueError(f"record {feature} is not in {tree.feature_condition}")
-                        value = tree.feature_condition[feature]
+                        if not feature in tree.branches.keys():
+                            raise ValueError(f"record {feature} is not in {tree.branches}")
+                        value = tree.branches[feature]
                 else:
                     i = 0
                     for tree in l:
                         i += 1
-                        if tree.feature_name != value:
+                        if tree.feature_name != TL.treeLevel.getBranchValue(value):
                             continue
                         feature = records[tree.feature_name][record_offset]
-                        if not feature in tree.feature_condition.keys():
-                            raise ValueError(f"record {feature} is not in {tree.feature_condition}")
-                        value = tree.feature_condition[feature]
+                        if not feature in tree.branches.keys():
+                            raise ValueError(f"record {feature} is not in {tree.branches}")
+                        value = tree.branches[feature]
                         break
 
                     if i == len(l):
                         raise ValueError("no match record, please check!")
 
-                if value in decisions:
-                    decisions_rets.append(value)
+                if TL.treeLevel.isBranchDone(value):
+                    decisions_rets.append(TL.treeLevel.getBranchValue(value))
                     break
 
         return decisions_rets
-
-    
-# valid values: ["regression", "ID3_binary", "Gini_binary"]
-test_dict = dict()
-test_dict['algorithm'] = "regression"
-
-if __name__ == "__main__":
-    file_dir = None
-    test_dir = None
-
-    if test_dict['algorithm'] == 'regression':
-        file_dir = './golf_regression.txt'
-    elif test_dict['algorithm'] == 'ID3_binary' or test_dict['algorithm'] == 'Gini_binary':
-        file_dir = './golf_binary_classification.txt'
-        test_dir = './record.txt'
-    else:
-        pass
-
-    df = pd.read_csv(file_dir)
-    
-    config = {'algorithm':test_dict['algorithm'], 'maxDepth': 3, 'summary': True}
-    dTree = DecisionTree(config)
-    dTree.handleDecisionTree(df)
-
-    if test_dir:
-        record = pd.read_csv(test_dir)
-        print( dTree.findDecisions(record) )
-
-
-
-
-

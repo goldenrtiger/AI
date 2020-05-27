@@ -1,7 +1,8 @@
-# Example
+# decisionTree_example.py
+## Example
 * Classification
 >   Outlook         Temp.           Humidity        Wind        Decidion
->    Sunny          Hot             High            Weak        No            
+>    Sunny          Hot             High            Weak        No           
 >    Sunny          Hot             High            Strong      No
 >    Overcast       Hot             High            Weak        Yes
 >    Rain           Mild            High            Weak        Yes
@@ -34,7 +35,7 @@
 >    Sunny           Mild             High          True            30                        
 >                                                                           
 
-# Aim
+## Aim
 > Implement of CART_binary (Gini_binary)
 > Implement of ID3_binary 
 > Implement of regression
