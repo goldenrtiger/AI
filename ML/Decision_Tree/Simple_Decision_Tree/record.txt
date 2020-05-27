@@ -1,0 +1,3 @@
+Outlook,Temp.,Humidity,Wind
+Sunny,Hot,High,Weak
+Sunny,Mild,Normal,Strong

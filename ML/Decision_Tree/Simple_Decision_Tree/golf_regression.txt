@@ -1,0 +1,15 @@
+Outlook,Temp.,Humidity,Wind,Target
+Rain,Hot,High,False,25                       
+Rain,Hot,High,True,30                  
+Overcast,Hot,High,False,46                           
+Sunny,Mild,High,False,45                          
+Sunny,Cool,Normal,False,52                      
+Sunny,Cool,Normal,True,23                           
+Overcast,Cool,Normal,True,43                              
+Rain,Mild,High,False,35                         
+Rain,Cool,Normal,False,38                           
+Sunny,Mild,Normal,False,46                            
+Rain,Mild,Normal,True,48                          
+Overcast,Mild,High,True,52                            
+Overcast,Hot,Normal,False,44                          
+Sunny,Mild,High,True,30    
