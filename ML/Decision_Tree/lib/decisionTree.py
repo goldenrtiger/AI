@@ -37,9 +37,11 @@ class DecisionTree:
         self.configure['summary'] = summary
 
     def summary(self):
+        i = 0
         for l in self.trees:
             for tree in l:
-                print(f" root_node_name: {tree.feature_name} \n nodes_detail: {tree.branches} \n")
+                print(f" level: {i}, root_node_name: {tree.feature_name} \n nodes_detail: {tree.branches} \n")
+            i += 1
 
     def createTreeLevelBinary(self, df):
         rows, cols = df.shape[0], df.shape[1]
