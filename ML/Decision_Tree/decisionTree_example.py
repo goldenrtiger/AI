@@ -41,23 +41,24 @@ test_dict = dict()
 test_dict['algorithm'] = "regression"
 
 if __name__ == "__main__":
-    file_dir, test_dir = None, None
+    file_path, test_Path = None, None
 
     if test_dict['algorithm'] == 'regression':
-        file_dir = './dataset/golf_regression.txt'
+        file_path = './dataset/golf_regression.txt'
+        test_Path = './dataset/golf_regression_record.txt'
     elif test_dict['algorithm'] == 'ID3_binary' or test_dict['algorithm'] == 'Gini_binary':
-        file_dir = './dataset/golf_binary_classification.txt'
-        test_dir = './dataset/record.txt'
+        file_path = './dataset/golf_binary_classification.txt'
+        test_Path = './dataset/record.txt'
     else:
         pass
 
-    df = pd.read_csv(file_dir)
+    df = pd.read_csv(file_path)
     
     config = {'algorithm':test_dict['algorithm'], 'maxDepth': 3, 'summary': True}
     dTree = DT.DecisionTree(config)
-    dTree.handleDecisionTree(df)
+    dTree.fit(df)
 
-    if test_dir:
-        record = pd.read_csv(test_dir)
-        print( f"Result: {dTree.findDecisions(record)}" )
+    if test_Path:
+        records = pd.read_csv(test_Path)
+        print( f"Result: {dTree.findDecisions(records)}" )
 
