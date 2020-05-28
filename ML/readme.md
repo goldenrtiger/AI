@@ -11,7 +11,8 @@
 * tensorflow.LinearRegression_simple.py
 * tensorflow.NonlinearRegression_simple.py
 * tensorflow.tf_gradient_test.py
-* Decision_Tree\decisionTree_example.py
-
 * pyro.learning_test.py
 * pyro.hmc_simple_test.py
+
+* Decision_Tree\decisionTree_example.py
+* Decision_Tree\GBDT_example.py
