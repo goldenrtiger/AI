@@ -54,10 +54,10 @@
 >    Sunny           Mild             High          True            30     
 
 
-## Aim
-> Implement of CART_binary (Gini_binary)
-> Implement of ID3_binary 
-> Implement of regression
-> Implement of GBDT
+# Goal
+> 1.Implement of CART_binary (Gini_binary)
+> 2.Implement of ID3_binary 
+> 3.Implement of regression
+> 4.Implement of GBDT
 
 
