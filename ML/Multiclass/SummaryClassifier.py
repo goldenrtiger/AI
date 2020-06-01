@@ -17,7 +17,7 @@ def select_dataset():
         y = iris.target
         max_features = 3
     elif config['dataset'] == 'letters':
-        df = pd.read_csv('./github/AI/ML/Multiclass/datasets/letter-recognition.data')
+        df = pd.read_csv('./datasets/letter-recognition.data')
         X = df.values[:,1:].astype("float64")
         y = df.values[:,0]
         max_features = 26
